@@ -41,6 +41,7 @@ namespace TMP
             this.lbl_TempDirection = new System.Windows.Forms.Label();
             this.lbl_Temp = new System.Windows.Forms.Label();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.lblLoadBar = new System.Windows.Forms.Label();
             this.lblLoad = new System.Windows.Forms.Label();
             this.lblClockSpeed = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
@@ -79,7 +80,6 @@ namespace TMP
             this.timer_ValueUpdater = new System.Windows.Forms.Timer(this.components);
             this.lblWPP = new System.Windows.Forms.Label();
             this.lblWPPUpdate = new System.Windows.Forms.Label();
-            this.lblLoadBar = new System.Windows.Forms.Label();
             this.canvas = new TMP.canvas();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.IncDec_Temp)).BeginInit();
@@ -192,7 +192,7 @@ namespace TMP
             // 
             this.lbl_TempDirection.AutoSize = true;
             this.lbl_TempDirection.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lbl_TempDirection.Location = new System.Drawing.Point(79, 54);
+            this.lbl_TempDirection.Location = new System.Drawing.Point(76, 54);
             this.lbl_TempDirection.Name = "lbl_TempDirection";
             this.lbl_TempDirection.Size = new System.Drawing.Size(19, 15);
             this.lbl_TempDirection.TabIndex = 10;
@@ -221,6 +221,15 @@ namespace TMP
             this.groupBox2.TabIndex = 10;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Current CPU";
+            // 
+            // lblLoadBar
+            // 
+            this.lblLoadBar.AutoSize = true;
+            this.lblLoadBar.Location = new System.Drawing.Point(58, 76);
+            this.lblLoadBar.Name = "lblLoadBar";
+            this.lblLoadBar.Size = new System.Drawing.Size(87, 13);
+            this.lblLoadBar.TabIndex = 8;
+            this.lblLoadBar.Text = "OOOOOOOOOO";
             // 
             // lblLoad
             // 
@@ -542,7 +551,7 @@ namespace TMP
             this.flowLayoutPanel1.BackColor = System.Drawing.Color.DarkGray;
             this.flowLayoutPanel1.Controls.Add(this.checkBox2);
             this.flowLayoutPanel1.Controls.Add(this.checkBox3);
-            this.flowLayoutPanel1.Location = new System.Drawing.Point(399, 225);
+            this.flowLayoutPanel1.Location = new System.Drawing.Point(399, 311);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
             this.flowLayoutPanel1.Size = new System.Drawing.Size(389, 37);
             this.flowLayoutPanel1.TabIndex = 16;
@@ -609,20 +618,11 @@ namespace TMP
             this.lblWPPUpdate.TabIndex = 21;
             this.lblWPPUpdate.Text = "Last Update --:--:--";
             // 
-            // lblLoadBar
-            // 
-            this.lblLoadBar.AutoSize = true;
-            this.lblLoadBar.Location = new System.Drawing.Point(58, 76);
-            this.lblLoadBar.Name = "lblLoadBar";
-            this.lblLoadBar.Size = new System.Drawing.Size(87, 13);
-            this.lblLoadBar.TabIndex = 8;
-            this.lblLoadBar.Text = "OOOOOOOOOO";
-            // 
             // canvas
             // 
             this.canvas.Location = new System.Drawing.Point(399, 12);
             this.canvas.Name = "canvas";
-            this.canvas.Size = new System.Drawing.Size(389, 215);
+            this.canvas.Size = new System.Drawing.Size(572, 296);
             this.canvas.TabIndex = 19;
             this.canvas.Paint += new System.Windows.Forms.PaintEventHandler(this.canvas_Paint);
             // 
@@ -631,7 +631,7 @@ namespace TMP
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Gray;
-            this.ClientSize = new System.Drawing.Size(795, 274);
+            this.ClientSize = new System.Drawing.Size(983, 388);
             this.Controls.Add(this.lblWPPUpdate);
             this.Controls.Add(this.lblWPP);
             this.Controls.Add(this.canvas);

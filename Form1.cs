@@ -52,7 +52,7 @@ namespace TMP
 		private DateTime lastTemp;
 
 		private static double _averageTemp = 0;
-		private static float[] _tempArray = new float[20];
+		private static float[] _tempArray = new float[6];
 		private static int _tempArray_i = 0;
 
 		// uses cmdcall at shift time
@@ -88,6 +88,9 @@ namespace TMP
 				CMD.SetMaxState(true, (uint)StartProfile.percentUpper, false);
 				CMD.SetMinState(false, (uint)StartProfile.percentLower, false);
 				CMD.SetMinState(true, (uint)StartProfile.percentLower);
+
+				CanvasProp.Data.Add_percentUpper(DateTime.Now, StartProfile.percentUpper);
+				CanvasProp.Data.Add_percentLower(DateTime.Now, StartProfile.percentLower);
 
 				break;
 				
@@ -148,9 +151,11 @@ namespace TMP
 					sum += _tempArray[i];
 				_averageTemp = (double)sum / _tempArray.Length;
 				lastTemp = DateTime.Now;
+				
+				
 
 				// display of new value
-				lbl_Temp.Text = _averageTemp + " C°";
+				lbl_Temp.Text = _averageTemp.ToString("##.##") + " C°";
 				if (_averageTemp > StartProfile.tempMax)
 				{
 					lbl_TempDirection.Text = "HOT";
@@ -167,26 +172,25 @@ namespace TMP
 					lbl_TempDirection.ForeColor = Color.Blue;
 				}
 				lblClockSpeed.Text = ((int)Util.GetClockSpeed(false)+0.5f).ToString("###0")+" MHz";
+				
 				int load = (int)Util.GetLoad(false);
 				lblLoad.Text = load.ToString("00")+"%";
 				lblLoadBar.Text = new string('O', (load+5) / 10);
 
+				// adding temp value
+				CanvasProp.Data.Add_temp(DateTime.Now, _averageTemp);
+				// adding load value
+				CanvasProp.Data.Add_load(DateTime.Now, load);
 			}
 
-			// adding temp values
-			CanvasProp.timestamp.Add(DateTime.Now);
-			CanvasProp.tempVal.Add(_averageTemp);
-			if (DateTime.Now.Subtract(CanvasProp.timestamp[0]).TotalMilliseconds > CanvasProp.logBufferSec*1000)
-            {
-				CanvasProp.tempVal.RemoveAt(0);
-				CanvasProp.timestamp.RemoveAt(0);
-			}
+
+
 			// updating temp
 			txtBx_LowerP.Text = StartProfile.percentLower.ToString();
 			txtBx_UpperP.Text = StartProfile.percentUpper.ToString();
 			
 			// canvas refresh
-			if (cou++ > 20)
+			if (cou++ > 8)
             {
 				cou = 0;
 				canvas.Refresh();
@@ -196,6 +200,12 @@ namespace TMP
 		int cou = 0;
 		private void canvas_Paint(object sender, PaintEventArgs e)
 		{
+			// config illustration --------
+
+			bool bShowConnectingLinesForLoad = false;
+			
+			//-----------------------------
+
 			Graphics G = e.Graphics;
 			if (false)
             {
@@ -208,59 +218,259 @@ namespace TMP
 				G.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighSpeed;
 			}
 
-
-
-
 			int winX = e.ClipRectangle.Width, winY = e.ClipRectangle.Height;
 			int cellsVert = 12, cellsHori = 40;
 			float cellSizeX = (float)winX/cellsHori, cellSizeY = (float)winY/cellsVert;
 
 			Brush bruhBlack = new SolidBrush(Color.Gray);
 			Brush bruhDarkGray = new SolidBrush(Color.DarkGray);
+            // chess board
+            {
+				bool b;
+				for (int i = 0; i < cellsVert; i++)
+					for (int i2 = 0; i2 < cellsHori; i2++)
+					{
+						b = (i + i2) % 2 == 0;
+						G.FillRectangle(b ? bruhBlack : bruhDarkGray, i2 * cellSizeX, i * cellSizeY, cellSizeX, cellSizeY);
+					}
+
+			}
+
+			Rectangle areaCanvas = e.ClipRectangle,
+				areaTemp = new Rectangle(0, 0, winX, winY - winY/4),
+				areaPerc = new Rectangle(0, winY - winY/4, winX, winY/4),
+				areaLoad = areaPerc;
+
+			//G.DrawRectangle(Pens.Black, areaCanvas);
+			//G.DrawRectangle(Pens.Black, areaTemp);
+			//G.DrawRectangle(Pens.Black, areaPerc);
+			//G.DrawRectangle(Pens.Black, areaLoad);
 			
-			bool b;
-            for (int i = 0; i < cellsVert; i++)
-                for (int i2 = 0; i2 < cellsHori; i2++)
-                {
-					b = (i+i2) % 2 == 0;
-					G.FillRectangle(b?bruhBlack:bruhDarkGray, i2 * cellSizeX, i * cellSizeY, cellSizeX, cellSizeY);
-                }
 
 			// temp bounds bars
-			var pTMax = CanvasProp.GetScreenPos_Temp(new TimeSpan(0), winX, winY, StartProfile.tempMax);
-			var pTMin = CanvasProp.GetScreenPos_Temp(new TimeSpan(0), winX, winY, StartProfile.tempMin);
-			G.FillRectangle(Brushes.DarkRed, 0, pTMax.Y - 1, winX, 3);
-			G.FillRectangle(Brushes.DarkRed, 0, pTMin.Y - 1, winX, 3);
-			G.DrawLine(Pens.Black, 0, pTMax.Y, winX, pTMax.Y);
-			G.DrawLine(Pens.Black, 0, pTMin.Y+1, winX, pTMin.Y+1);
+			{
+				var pTMax = ((int X, int Y))CanvasProp.GetScreenPos_Temp(StartProfile.tempMax, DateTime.MinValue, areaTemp);
+				var pTMin = ((int X, int Y))CanvasProp.GetScreenPos_Temp(StartProfile.tempMin, DateTime.MinValue, areaTemp);
+				var rMax = new Rectangle(areaTemp.X, pTMax.Y - 1, areaTemp.Width - 30*0, 3);
+				var rMin = new Rectangle(areaTemp.X, pTMin.Y - 1, areaTemp.Width - 30*0, 3);
+				SolidBrush sb = new SolidBrush(Color.FromArgb(35, Color.DarkRed));
+				G.FillRectangle(sb, areaTemp.X, rMax.Bottom, rMax.Width, rMin.Top - rMax.Bottom);
+				G.FillRectangle(Brushes.DarkRed, rMax);
+				G.FillRectangle(Brushes.DarkRed, rMin);
+			}
 
-			// temp values
-			DateTime dtNow = DateTime.Now;
-			for (int i = 0; i < CanvasProp.tempVal.Count; i++)
+            // temp values
             {
-				var p = CanvasProp.GetScreenPos_Temp(dtNow.Subtract(CanvasProp.timestamp[i]), winX, winY, (float)CanvasProp.tempVal[i]);
-				G.FillRectangle(Brushes.Red, p.X, p.Y, 1, 1);
-            }
+				(int X, int Y) p = (0,0);
+				for (int i = 0; i < CanvasProp.Data.temp.Count; i++)
+				{
+					p = ((int X, int Y))CanvasProp.GetScreenPos_Temp(i, areaTemp);
+					G.FillRectangle(Brushes.Red, p.X-1, p.Y-1, 3, 3);
+				}
+				int range = CanvasProp.maxVal - CanvasProp.minVal;
+				if (CanvasProp.Data.temp.Count > 0 && p.Y > areaTemp.Bottom - areaTemp.Height/8)
+                {
+					CanvasProp.maxVal -= range/4;
+					CanvasProp.minVal -= range/4;
+                }
+				else if (CanvasProp.Data.temp.Count > 0 && p.Y < areaTemp.Y + areaTemp.Height/8)
+                {
+					CanvasProp.maxVal += range / 4;
+					CanvasProp.minVal += range / 4;
+				}
+			}
 			
+			// cpu p%
+			{
+				// metric sidebar
+				bool thiccOrNo = areaPerc.Height > 100;
+				for (int i = 0; i < 101; i += 5)
+				{
+					if (i > 100) continue;
+					var p = CanvasProp.GetScreenPos_GenericPercent(i, DateTime.MinValue, areaPerc);
+					if (i % 10 == 0)
+					{
+						G.DrawLine(Pens.AntiqueWhite, winX - 7, p.Y, winX, p.Y);
+						if (thiccOrNo) G.DrawLine(Pens.AntiqueWhite, winX - 7, p.Y - 1, winX, p.Y - 1);
+					}
+					else
+					{
+						G.DrawLine(Pens.AntiqueWhite, winX - 2, p.Y, winX, p.Y);
+						if (thiccOrNo) G.DrawLine(Pens.AntiqueWhite, winX - 2, p.Y - 1, winX, p.Y - 1);
+					}
+				}
+				// upper lower percent interval
+				if (CanvasProp.Data.percentUpper.Count != 0
+					&& CanvasProp.Data.percentLower.Count != 0)
+				{	
+					(float X, float Y) Hp2 = (0f, 0f), Hp1 = CanvasProp.GetScreenPos_UpperPercent(0, areaPerc);
+					(float X, float Y) Lp2 = (0f, 0f), Lp1 = CanvasProp.GetScreenPos_LowerPercent(0, areaPerc);
+					SolidBrush sb = new SolidBrush(Color.FromArgb(120, Color.White));
+					for (int i = 1; i < CanvasProp.Data.percentUpper.Count && i < CanvasProp.Data.percentLower.Count; i++)
+					{
+						Hp2 = CanvasProp.GetScreenPos_UpperPercent(i, areaPerc);
+						//G.DrawLine(Pens.White, Hp1.X, Hp1.Y, Hp2.X, Hp1.Y);
+						Lp2 = CanvasProp.GetScreenPos_LowerPercent(i, areaPerc);
+						//G.DrawLine(Pens.White, Lp1.X, Lp1.Y, Lp2.X, Lp1.Y);
+
+						G.FillRectangle(sb, Hp1.X, Hp1.Y, Lp2.X - Hp1.X, Lp1.Y - Hp1.Y);
+						Hp1 = Hp2;
+						Lp1 = Lp2;
+					}
+					//G.DrawLine(Pens.White, Hp2.X, Hp2.Y, winX, Hp2.Y);
+					//G.DrawLine(Pens.White, Lp2.X, Lp2.Y, winX, Lp2.Y);
+					G.FillRectangle(sb, Hp1.X, Hp1.Y, winX - Hp1.X, Lp1.Y - Hp1.Y);
+				}
+                // load percent
+                {
+					(int X, int Y) p, p2 = (areaLoad.X, areaLoad.Bottom);
+					for (int i = 0; i < CanvasProp.Data.load.Count; i++)
+					{
+						p = ((int X, int Y))CanvasProp.GetScreenPos_Load(i, areaLoad);
+						G.FillRectangle(Brushes.White, p.X, p.Y, 1, areaLoad.Bottom - p.Y);
+						if (bShowConnectingLinesForLoad)
+							G.DrawLine(Pens.White, p.X, p.Y, p2.X, p2.Y);
+						p2 = p;
+					}
+				}
+			}
+
+            // labels
+            {
+				int cou; SizeF s; Point p; string str;
+				var f = new Font(FontFamily.GenericMonospace, 10);
+				// temp
+				cou = CanvasProp.Data.temp.Count;
+				if (cou != 0)
+                {
+					str = CanvasProp.Data.temp[cou - 1].ToString("###.##") + " C°";
+					s = G.MeasureString(str, f);
+					p = new Point(0, areaTemp.Y + areaTemp.Height / 2 - (int)s.Height / 2);
+					G.FillRectangle(Brushes.Black, p.X, p.Y, s.Width, s.Height);
+					G.DrawString(str, f, Brushes.White, p);
+				}
+				// load
+				cou = CanvasProp.Data.load.Count;
+				if (cou != 0)
+                {
+					str = CanvasProp.Data.load[cou - 1] + "%";
+					s = G.MeasureString(str, f);
+					p = new Point(0, areaLoad.Y + areaLoad.Height / 2 - (int)s.Height / 2);
+					G.FillRectangle(Brushes.Black, p.X, p.Y, s.Width, s.Height);
+					G.DrawString(str, f, Brushes.White, p);
+				}	
+            }
 
 		}
 		class CanvasProp
 		{
-			public static int logBufferSec = 12;
+			public static class Data
+            {
+				public static void Add_temp(DateTime dt, double val)
+				{
+					for (int i = 0; i < DTtemp.Count && DateTime.Now.Subtract(DTtemp[i]).TotalSeconds > logBufferSec; i++)
+					{
+						DTtemp.RemoveAt(i);
+						temp.RemoveAt(i);
+					}
+					DTtemp.Add(dt);
+					temp.Add(val);
+				}
+				public static void Add_percentUpper(DateTime dt, int val)
+                {
+                    for (int i = 1; i < DTpercentUpper.Count - 1 && DateTime.Now.Subtract(DTpercentUpper[i]).TotalSeconds > logBufferSec; i++)
+					{
+						DTpercentUpper.RemoveAt(i-1);
+						percentUpper.RemoveAt(i-1);
+					}
+					DTpercentUpper.Add(dt);
+					percentUpper.Add(val);
+                }
+				public static void Add_percentLower(DateTime dt, int val)
+                {
+					for (int i = 1; i < DTpercentLower.Count - 1 && DateTime.Now.Subtract(DTpercentLower[i]).TotalSeconds > logBufferSec; i++)
+					{
+						DTpercentLower.RemoveAt(i-1);
+						percentLower.RemoveAt(i-1);
+					}
+					DTpercentLower.Add(dt);
+					percentLower.Add(val);
+                }
+				public static void Add_load(DateTime dt, int val)
+				{
+					for (int i = 0; i < DTpercentLoad.Count && DateTime.Now.Subtract(DTpercentLoad[i]).TotalSeconds > logBufferSec; i++)
+					{
+						DTpercentLoad.RemoveAt(i);
+						load.RemoveAt(i);
+					}
+					DTpercentLoad.Add(dt);
+					load.Add(val);
+				}
+				public static List<DateTime>
+					DTtemp = new List<DateTime>(),
+					DTpercentUpper = new List<DateTime>(),
+					DTpercentLower = new List<DateTime>(),
+					DTpercentLoad = new List<DateTime>();
+				public static List<double>
+					temp = new List<double>();
+				public static List<int>
+					percentUpper = new List<int>(),
+					percentLower = new List<int>(),
+					load = new List<int>();
+
+			}
+			
+			public static int logBufferSec = 30;
 			public static int maxVal = 75;
 			public static int minVal = 55;
-			public static List<DateTime> timestamp = new List<DateTime>();
-			public static List<double> tempVal = new List<double>();
+            
 
-
-			public static (float X, float Y) GetScreenPos_Temp(TimeSpan ts, int winX, int winY, float temp)
+			public static (float X, float Y) GetScreenPos_Temp(int iVal, Rectangle area)
             {
-				int length = winX;
-				float percent = (float)ts.TotalMilliseconds / (logBufferSec * 1000);
-				float x = winX - length * percent;
-				float y = winY - winY * (temp - minVal) / (maxVal - minVal);
-				return (x, y);
-            }
+				return GetScreenPos_Temp(Data.temp[iVal], Data.DTtemp[iVal], area);
+			}
+			public static (float X, float Y) GetScreenPos_Temp(double val, DateTime dt, Rectangle area)
+			{
+				return GenericScreenPos(
+					val, minVal, maxVal,
+					DateTime.Now.Subtract(dt), new TimeSpan(0, 0, logBufferSec),
+					area, true, true);
+			}
+			public static (float X, float Y) GetScreenPos_UpperPercent(int iVal, Rectangle area)
+			{
+				return GetScreenPos_GenericPercent(Data.percentUpper[iVal], Data.DTpercentUpper[iVal], area);
+			}
+			public static (float X, float Y) GetScreenPos_LowerPercent(int iVal, Rectangle area)
+			{
+				return GetScreenPos_GenericPercent(Data.percentLower[iVal], Data.DTpercentLower[iVal], area);
+			}
+			public static (float X, float Y) GetScreenPos_Load(int iVal, Rectangle area)
+			{
+				return GetScreenPos_GenericPercent(Data.load[iVal], Data.DTpercentLoad[iVal], area);
+			}
+			public static (float X, float Y) GetScreenPos_GenericPercent(int val, DateTime dt, Rectangle area)
+			{
+				return GenericScreenPos(
+					val, 0, 100,
+					DateTime.Now.Subtract(dt), new TimeSpan(0, 0, logBufferSec),
+					area, true, true);
+			}
+
+
+			// beaty of  code ! :)
+			public static (float X, float Y) GenericScreenPos(
+				double val, double valMin, double valMax,
+				TimeSpan ts, TimeSpan tMax,
+				Rectangle area, bool invX = false, bool invY = false)
+			{
+				double valRange = valMax - valMin;
+				double valPerc = (val - valMin) / valRange;
+				double tPerc = (ts.TotalMilliseconds / tMax.TotalMilliseconds);
+				return (
+					(float)(area.X + area.Width * (invX ? 1 - tPerc : tPerc)),
+					(float)(area.Y + area.Height * (invY ? 1 - valPerc : valPerc))
+					);
+			}
 		}
 
 		private Color colorBtn = Color.FromKnownColor(KnownColor.Gainsboro);
