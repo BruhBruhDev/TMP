@@ -140,22 +140,34 @@ namespace TMP
             {
 				DateTime dt = CMD.lastWPPUpdate;
 				lblWPPUpdate.Text = "Last update: "+dt.Hour.ToString("00")+":"+dt.Minute.ToString("00")+":"+dt.Second.ToString("00");
+				lblWPP.Text = "Current WPP: "+CMD.GetCurrentWPP();
 			}
 
 			// new cpu data / temp data
 			if ((int)DateTime.Now.Subtract(lastTemp).TotalMilliseconds > Config.tempUpdateInterval)
 			{
 				_tempArray[++_tempArray_i % _tempArray.Length] = Util.GetMaxTemp(true);
-				float sum = 0;
+				float sum = 0, min = 100, max = 0, cmin = 0, cmax = 0;
 				for (int i = 0; i < _tempArray.Length; i++)
+				{
 					sum += _tempArray[i];
+					if (_tempArray[i] > max) max = _tempArray[i];
+					if (_tempArray[i] < min) min = _tempArray[i];
+				}
+				for (int i = 0; i < _tempArray.Length; i++)
+				{
+					if (_tempArray[i] == max) cmax++;
+					if (_tempArray[i] == min) cmin++;
+				}
 				_averageTemp = (double)sum / _tempArray.Length;
 				lastTemp = DateTime.Now;
-				
-				
+
+				// TODO finish the concept with min max (there is still the avg temp which is used weirdly
+				// and the dataset for min and max is not controlled rationally)
 
 				// display of new value
-				lbl_Temp.Text = _averageTemp.ToString("##.##") + " C°";
+				lbl_TempHigh.Text = (max).ToString("##.#") + " C°";// |" + (cmax).ToString("#");
+				lbl_TempLow.Text = (min).ToString("##.#") + " C°";// |" + (cmin).ToString("#");
 				if (_averageTemp > StartProfile.tempMax)
 				{
 					lbl_TempDirection.Text = "HOT";
@@ -190,7 +202,7 @@ namespace TMP
 			txtBx_UpperP.Text = StartProfile.percentUpper.ToString();
 			
 			// canvas refresh
-			if (cou++ > 8)
+			if (cou++ > 10)
             {
 				cou = 0;
 				canvas.Refresh();

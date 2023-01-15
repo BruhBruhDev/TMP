@@ -39,7 +39,7 @@ namespace TMP
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.IncDec_Temp = new System.Windows.Forms.NumericUpDown();
             this.lbl_TempDirection = new System.Windows.Forms.Label();
-            this.lbl_Temp = new System.Windows.Forms.Label();
+            this.lbl_TempHigh = new System.Windows.Forms.Label();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.lblLoadBar = new System.Windows.Forms.Label();
             this.lblLoad = new System.Windows.Forms.Label();
@@ -81,6 +81,7 @@ namespace TMP
             this.lblWPP = new System.Windows.Forms.Label();
             this.lblWPPUpdate = new System.Windows.Forms.Label();
             this.canvas = new TMP.canvas();
+            this.lbl_TempLow = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.IncDec_Temp)).BeginInit();
             this.groupBox2.SuspendLayout();
@@ -162,9 +163,10 @@ namespace TMP
             // groupBox1
             // 
             this.groupBox1.BackColor = System.Drawing.Color.Silver;
+            this.groupBox1.Controls.Add(this.lbl_TempLow);
             this.groupBox1.Controls.Add(this.IncDec_Temp);
             this.groupBox1.Controls.Add(this.lbl_TempDirection);
-            this.groupBox1.Controls.Add(this.lbl_Temp);
+            this.groupBox1.Controls.Add(this.lbl_TempHigh);
             this.groupBox1.Controls.Add(this.label2);
             this.groupBox1.Controls.Add(this.txtBx_MinTemp);
             this.groupBox1.Controls.Add(this.label3);
@@ -198,15 +200,15 @@ namespace TMP
             this.lbl_TempDirection.TabIndex = 10;
             this.lbl_TempDirection.Text = "---";
             // 
-            // lbl_Temp
+            // lbl_TempHigh
             // 
-            this.lbl_Temp.AutoSize = true;
-            this.lbl_Temp.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lbl_Temp.Location = new System.Drawing.Point(10, 54);
-            this.lbl_Temp.Name = "lbl_Temp";
-            this.lbl_Temp.Size = new System.Drawing.Size(38, 20);
-            this.lbl_Temp.TabIndex = 9;
-            this.lbl_Temp.Text = "0 C°";
+            this.lbl_TempHigh.AutoSize = true;
+            this.lbl_TempHigh.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lbl_TempHigh.Location = new System.Drawing.Point(10, 49);
+            this.lbl_TempHigh.Name = "lbl_TempHigh";
+            this.lbl_TempHigh.Size = new System.Drawing.Size(38, 20);
+            this.lbl_TempHigh.TabIndex = 9;
+            this.lbl_TempHigh.Text = "0 C°";
             // 
             // groupBox2
             // 
@@ -626,6 +628,16 @@ namespace TMP
             this.canvas.TabIndex = 19;
             this.canvas.Paint += new System.Windows.Forms.PaintEventHandler(this.canvas_Paint);
             // 
+            // lbl_TempLow
+            // 
+            this.lbl_TempLow.AutoSize = true;
+            this.lbl_TempLow.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lbl_TempLow.Location = new System.Drawing.Point(10, 70);
+            this.lbl_TempLow.Name = "lbl_TempLow";
+            this.lbl_TempLow.Size = new System.Drawing.Size(38, 20);
+            this.lbl_TempLow.TabIndex = 12;
+            this.lbl_TempLow.Text = "0 C°";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -688,7 +700,7 @@ namespace TMP
         private System.Windows.Forms.Label lblClockSpeed;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Label lbl_TempDirection;
-        private System.Windows.Forms.Label lbl_Temp;
+        private System.Windows.Forms.Label lbl_TempHigh;
         private System.Windows.Forms.NumericUpDown IncDec_Temp;
         private System.Windows.Forms.Timer timer_Controller;
         private System.Windows.Forms.Label lbl_IsNotElevated;
@@ -728,6 +740,7 @@ namespace TMP
         private System.Windows.Forms.Label lblWPP;
         private System.Windows.Forms.Label lblWPPUpdate;
         private System.Windows.Forms.Label lblLoadBar;
+        private System.Windows.Forms.Label lbl_TempLow;
     }
 }
 

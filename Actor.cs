@@ -15,7 +15,7 @@ namespace TMP
 	{
 		public static string
 			WPP_Name = "TMP",
-			WPP_Desc = "This is a TMP - managed powerplan.Do not modify";
+			WPP_Desc = "This is a TMP-managed powerplan. Do not modify";
 	}
 	class CMD
 	{
@@ -103,6 +103,10 @@ namespace TMP
 		static int selectedScheme;
 		static int ourWPP; // wpp of the tmp
 		public static DateTime lastWPPUpdate = DateTime.Now; // updates every time wpp is reactivated
+		public static string GetCurrentWPP()
+        {
+			return selectedScheme == -1 ? "Not detected" : schemeName[selectedScheme];
+        }
 		public static void RetrieveWPPs()
 		{
 			selectedScheme = -1;
