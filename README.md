@@ -5,7 +5,7 @@ TMP stands for Temperature Management Program. *Very straight forward, I know*
 ![screenshot](/images/screenshot-2.0.0.png)
 
 ## Whats the aim of TMP?
-It was designed by me initally for personal use only and initially it had just the console as ui. I was annoyed that my laptop would constantly be at his temperature limits, the fans reving at its maximum rotational momentum, creating noise and making me the center of attention. And I was unsatisfied with the way the built-in power plans work. I wanted full control.
+It was designed by me initally for personal use only and initially it had just the console as UI. I was annoyed that my laptop would constantly be at his temperature limits, the fans reving at its maximum rotational momentum, creating noise and making me the center of attention. And I was unsatisfied with the way the built-in power plans work. I wanted full control.
 
 I wanted to control the clock speed based on my cpu temperature.
 And it worked out well!
@@ -13,7 +13,7 @@ And it worked out well!
 Later I decided to share it and make it open source. On the way I noticed there are better ways to implement some things and made a overhaul 2.0 version with GUI and stuff. I myself enjoy the new version too haha
 
 ## How is it implemented?
- - works by using windows powerplans (*very freindly*)
+ - works by using windows powerplans (*very friendly*)
  - Hardware readings are made via the OpenHardwareMonitor library. Check it out at https://openhardwaremonitor.org
  - admin permissions are required to read cpu data
  - no networking bs
@@ -31,7 +31,7 @@ I know the code is not the best in some areas but it fills its purpose for now
 
 Known Issues:
 - Modifying "Upper p%" and "Lower p%" directly might sometimes have unexpected behaviour
-- Sometimes after starting the program and Cycle no WPP modifications are applied. It has something to do with the CMD part and is a bit messy to debug. The next version will include the working "Current WPP:"-label which should tell you if something messed up during start. It won't include the bug fix yet, maybe later 😂
+- Sometimes after starting the program and Cycle no WPP modifications are applied. It has something to do with the CMD part and is a bit messy to debug. The version 2.0.1 includes the working "Current WPP:"-label which should tell you if something messed up during start. It either shows "TMP" or "Not detected". The version doesn't include the bug fix yet, maybe later 😂
 
 
 # Wiki
