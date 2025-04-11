@@ -1,3 +1,8 @@
+# Update From Developer
+This project was developed by me for me; and *for* Windows and *using* Windows. But since I later switched to Linux I stopped using this program and also now don't have the tools to finish the final touches. It is functional and documented  below, the extra features are not finished yet. Maybe at some point I will set up a VM and finish it, but right now it is unlikely.
+Check out my other project
+![FTreeViewer](https://github.com/BruhBruhDev/FTreeViewer)! (also GitHub)
+
 # TMP
 
 TMP stands for Temperature Management Program. *Very straight forward, I know*
@@ -12,8 +17,15 @@ And it worked out well!
 
 Later I decided to share it and make it open source. On the way I noticed there are better ways to implement some things and made a overhaul 2.0 version with GUI and stuff. I myself enjoy the new version too haha
 
+## What OS is supported?
+Only Windows.
+Note: it was developed and tested in both Win7 and Win10. Not tested in Win11. Although should work the same way.
+
+## Building
+You can build it using Visual Studio (not to confuse with VS Code). You will need to install C# language support and Windows Forms. Thats it. Clone. Open the project and build. Don't forget OpenHardwareMonitor. It should be in the same directory as the .exe
+
 ## How is it implemented?
- - works by using windows powerplans (*very friendly*)
+ - works by using windows powerplans (*very os friendly*)
  - Hardware readings are made via the OpenHardwareMonitor library. Check it out at https://openhardwaremonitor.org
  - admin permissions are required to read cpu data
  - no networking bs
